@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Revisão de Sistemas · Prof. Natanael</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF6EC;--paper2:#F4ECDC;--ink:#2C2A26;--muted:#7A736A;
+  --blue:#2E6FB0;--blue-soft:#E4EFF8;--coral:#E0633A;--coral-soft:#FBE7DE;
+  --amber:#F0A93B;--amber-soft:#FBEFD6;--green:#2E9E6B;--green-soft:#E2F3EA;
+  --card:#FFFFFF;--line:rgba(44,42,38,.12);--line2:rgba(44,42,38,.22);
+  --shadow:0 6px 0 rgba(44,42,38,.10),0 14px 30px rgba(44,42,38,.10);--r:24px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overscroll-behavior:none}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:var(--paper);
+  background-image:linear-gradient(rgba(44,42,38,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(44,42,38,.05) 1px,transparent 1px);
+  background-size:26px 26px;min-height:100vh;padding:16px 14px 80px; display:flex; flex-direction:column;}
+.wrap{max-width:720px;margin:0 auto; width: 100%;}
+.head{text-align:center;margin-bottom:16px}
+.kicker{display:inline-block;background:var(--blue);color:#fff;font-family:'Baloo 2';font-weight:700;font-size:12px;letter-spacing:.5px;padding:5px 14px;border-radius:999px;text-transform:uppercase}
+h1{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.1;margin:10px 0 2px}
+.sub{color:var(--muted);font-weight:700;font-size:15px;margin:0}
+.x{color:var(--blue)}.y{color:var(--coral)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:24px 20px}
+.ask{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:clamp(18px,5vw,22px);margin:0 0 8px;text-align:center}
+.hint{text-align:center;color:var(--muted);font-weight:600;font-size:14px;margin:0 0 16px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.hint svg{width:18px;height:18px}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center}
+.bigeq{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:clamp(22px,6vw,28px);text-align:center;line-height:1.7;margin:6px 0}
+.field{width:100%;font-family:'Nunito';font-weight:700;font-size:16px;padding:16px;border:2px solid var(--line2);border-radius:12px;background:#fff;color:var(--ink);margin:8px 0 4px; appearance:none;}
+.steps{display:flex;justify-content:center;gap:4px;flex-wrap:wrap;margin:0 0 20px}
+.step{display:flex;align-items:center;gap:4px;font-weight:700;font-size:11px;color:var(--muted); text-transform:uppercase; letter-spacing:0.5px;}
+.bub{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid var(--line2);font-family:'Baloo 2';font-weight:800;font-size:11px;color:var(--muted)}
+.step.on .bub{background:var(--blue);border-color:var(--blue);color:#fff}.step.on{color:var(--blue)}
+.step.ok .bub{background:var(--green);border-color:var(--green);color:#fff}
+.sepd{width:6px;height:2px;background:var(--line);border-radius:2px}
+.system{display:flex;justify-content:center;margin:0 auto 16px;width:max-content;max-width:100%}
+.system .brace{width:6px;background:var(--ink);border-radius:6px;margin-right:14px;opacity:.85}
+.system .eqs{display:flex;flex-direction:column;gap:6px}
+.eq{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:clamp(20px,5.5vw,26px);letter-spacing:.4px}
+.tile{background:#fff;border:2px solid var(--line2);border-radius:14px;padding:16px 20px;font-family:'Baloo 2';font-weight:700;font-size:clamp(18px,5vw,22px);cursor:grab;user-select:none;touch-action:none;box-shadow:0 4px 0 rgba(44,42,38,.10)}
+.tile:active,.chip:active{cursor:grabbing}
+.chip{display:inline-grid;place-items:center;min-width:54px;height:54px;padding:0 14px;border-radius:14px;background:var(--amber-soft);border:2px solid var(--amber);font-family:'Baloo 2';font-weight:800;font-size:24px;color:#8a5b0c;cursor:grab;user-select:none;touch-action:none;box-shadow:0 4px 0 rgba(44,42,38,.12)}
+.chip.op{background:var(--blue-soft);border-color:var(--blue);color:var(--blue);min-width:auto;padding:0 24px;font-size:20px}
+.chip.ghost,.tile.ghost{box-shadow:0 12px 28px rgba(44,42,38,.35)}
+.dz.big{border:3px dashed var(--line2);border-radius:16px;padding:20px;min-height:72px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-weight:700;font-size:15px;background:rgba(255,255,255,.55);text-align:center;transition:all .15s}
+.dz.done2{border-style:solid;border-color:var(--line2);background:#fff;color:var(--ink);font-family:'Baloo 2';font-weight:700;font-size:clamp(22px,6vw,28px)}
+.dz.inl{display:inline-grid;place-items:center;min-width:52px;height:50px;padding:0 10px;border:3px dashed var(--blue);border-radius:12px;background:var(--blue-soft);vertical-align:middle;font-family:'Baloo 2';font-weight:800;font-size:22px;color:var(--blue)}
+.dz.over{border-color:var(--green)!important;background:var(--green-soft)!important;transform:scale(1.05)}
+.dz.done{border-style:solid}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 7px;line-height:1.05}
+.frac .fnum{padding:0 12px 4px}.frac .fden{padding:4px 12px 0;border-top:3px solid currentColor;min-width:44px}
+.struck{position:relative;opacity:.45}
+.struck::after{content:"";position:absolute;left:-2px;right:-2px;top:52%;height:3px;background:var(--ink);border-radius:3px;transform:rotate(-8deg)}
+.resbox{display:inline-block;background:var(--paper2);border-radius:12px;padding:8px 20px;font-family:'Baloo 2';font-weight:800}
+.feedback{margin-top:16px;border-radius:14px;padding:16px;font-weight:700;font-size:15px;display:flex;gap:12px;align-items:flex-start;line-height:1.45}
+.feedback.ok{background:var(--green-soft);color:#1d6b48}
+.feedback.bad{background:var(--coral-soft);color:#9c3c1d}
+.feedback.tip{background:var(--amber-soft);color:#8a5b0c; border: 2px dashed var(--amber);}
+.feedback svg{width:22px;height:22px;flex:none;margin-top:1px}
+.controls{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:12px}
+.btn{font-family:'Baloo 2';font-weight:800;border:none;border-radius:14px;padding:16px 24px;font-size:17px;cursor:pointer;box-shadow:0 4px 0 rgba(44,42,38,.15); transition:transform 0.1s, box-shadow 0.1s;}
+.btn.go{background:var(--blue);color:#fff}
+.btn.calc{background:var(--green);color:#fff;display:inline-flex;align-items:center;gap:8px}
+.btn.wide{width:100%;text-align:center;margin-top:12px}
+.btn.wa{background:#25D366;color:#0a3d1f}
+.btn.class-btn{background:#fff; color:var(--blue); border:3px solid var(--blue); font-size:22px; padding:20px; margin-bottom:10px;}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 rgba(44,42,38,.15)}
+.link{background:none;border:none;color:var(--muted);font-family:'Nunito';font-weight:700;font-size:14px;cursor:pointer;text-decoration:underline;padding:10px}
+hr{border:none;border-top:2px solid var(--line);margin:16px 0}
+.mrow{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.mrow .info{min-width:0}
+.mrow .ex{font-family:'Baloo 2';font-weight:800;font-size:17px}
+.mrow .sysmini{font-family:'Baloo 2';font-weight:700;font-size:16px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{font-family:'Baloo 2';font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;white-space:nowrap}
+.badge.ok{background:var(--green-soft);color:#1d6b48}
+.badge.todo{background:var(--amber-soft);color:#8a5b0c}
+.progress{height:12px;background:var(--paper2);border-radius:999px;overflow:hidden;margin:8px 0 20px}
+.progress>div{height:100%;background:var(--green);width:0;transition:width .4s}
+.cert{text-align:center}
+.cert .seal{width:72px;height:72px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;margin:0 auto 12px}
+.cert .seal svg{width:40px;height:40px}
+.cert .name{font-family:'Baloo 2';font-weight:800;font-size:26px;margin:8px 0 4px}
+.cert .meta{color:var(--muted);font-weight:700;font-size:14px;line-height:1.7}
+.cert .codebox{display:inline-block;background:var(--paper2);border-radius:14px;padding:10px 20px;font-family:'Baloo 2';font-weight:800;font-size:20px;letter-spacing:1px;margin:12px 0}
+.final{text-align:center}
+.solrow{display:flex;gap:16px;justify-content:center;margin:12px 0 20px;flex-wrap:wrap}
+.solcard{background:var(--paper2);border-radius:16px;padding:16px 28px}
+.solcard .lbl{font-family:'Baloo 2';font-weight:800;font-size:16px}
+.solcard .val{font-family:'Baloo 2';font-weight:800;font-size:42px;line-height:1}
+.check{color:var(--muted);font-weight:700;font-size:15px;line-height:1.9}.check b{color:var(--green)}
+.pop{animation:pop .3s ease}@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.footer{text-align:center;color:var(--muted);font-weight:600;font-size:13px;margin-top:auto; padding-top:30px;}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px; padding:0 8px;}
+.who{font-weight:800;font-size:14px;color:var(--muted)}
+.welcome-hero { background: var(--blue); color: white; padding: 40px 20px; border-radius: var(--r); text-align: center; margin-bottom: 20px; box-shadow: var(--shadow); }
+.welcome-hero h2 { font-family: 'Baloo 2'; font-size: 32px; font-weight: 800; margin: 0 0 10px; line-height:1.1; }
+.welcome-hero p { font-size: 16px; font-weight: 600; margin: 0; opacity: 0.9; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <span class="kicker" id="kicker"></span>
+    <h1 id="ttl"></h1>
+    <p class="sub" id="sb"></p>
+  </div>
+  <div id="app"></div>
+  <div class="footer">📱 Feito para o celular · Arraste as peças com o dedo</div>
+</div>
+
+<script>
+/* =================================================================
+   CONFIGURAÇÕES DO PROFESSOR NATANAEL
+   ================================================================= */
+var TITULO     = "A Batalha dos Sistemas";
+var KICKER     = "Revisão Interativa";
+var SUBTITULO  = "Prof. Natanael · Desvendando a Matemática";
+var PROFESSOR  = "Prof. Natanael";
+var WHATS      = "5592984582792"; 
+
+/* O SEU LINK DO GOOGLE SCRIPT ESTÁ AQUI! */
+var LINK_PLANILHA = "https://script.google.com/macros/s/AKfycbx50qZyDm8gNF2j5IFvcD2Q0bY70kMnkdITUklPt71FbhhdG_VoAUXjuNkETLn7tJafWg/exec"; 
+
+/* Lista Completa dos Alunos (separada com códigos invisíveis T1 e T2 para não bugar) */
+var ALUNOS = [
+  "T1-Ana Beatriz", "T1-Ana Clara", "T1-Arthur Matheus", "T1-Arthur Vinicius", 
+  "T1-Brenda Lohany", "T1-Calebe Mendes", "T1-Emanuely Maria (Def)", "T1-Fernanda Duarte", 
+  "T1-Guilherme Cardoso", "T1-Heiltor Sampaio", "T1-Isabela Louise", "T1-Isabella Macedo", 
+  "T1-Jasmim Da Silva", "T1-Joao Guilherme", "T1-Jose Henrique", "T1-Juliany Rocha", 
+  "T1-Keven Guilherme", "T1-Laura Sophya", "T1-Layane Karoline", "T1-Lorrana Gabrielly", 
+  "T1-Lucas Mazetti", "T1-Maria Alice", "T1-Maria Eduarda Lacerda", "T1-Maria Eduarda Lima", 
+  "T1-Maria Eduarda Pereira", "T1-Mateus Henrique (Def)", "T1-Pedro Gentil", "T1-Pedro Igor", 
+  "T1-Pericles Daniel", "T1-Raoni Ferreira", "T1-Renato Gabriel", "T1-Sidney Souza", 
+  "T1-Yasmim Batista", "T1-Yasmin Victoria", "T1-Jamille Estefany", "T1-Melissa Paula",
+  "T2-Ana Clara", "T2-Ana Vitoria", "T2-Anne Beatriz", "T2-Breendo Ribeiro", 
+  "T2-Danilo Caue", "T2-Dyego Melo", "T2-Emanuely Vitoria", "T2-Gustavo Armstrong", 
+  "T2-Jhessica Almeida", "T2-Joao Carlos", "T2-Joao Pedro", "T2-Joao Vitor", 
+  "T2-Josue Rafael", "T2-Julia Oliveira", "T2-Juliana Silva", "T2-Kayo Adriano", 
+  "T2-Lara Ruana", "T2-Leticia Tavares", "T2-Marco Antonio", "T2-Marina Alice", 
+  "T2-Melyssa Glendiane", "T2-Mikaelly Alves", "T2-Pedro Mesquita", "T2-Pedro Victor", 
+  "T2-Raicca Gabrielle", "T2-Raquel Gama", "T2-Renan Matheus", "T2-Thaylon Miguel", 
+  "T2-Victor Gabriel", "T2-Selma Kauany", "T2-Glenda Larissa", "T2-Sophia Silva", 
+  "T2-Salomao Gomes", "T2-Ana Clayre Da", "T2-Yasmin Vitoria", "T2-Nivaldo Rodrigues"
+];
+
+/* 5 sistemas (todos: multiplicar a 2ª equação e SOMAR para eliminar o y) */
+var SISTEMAS=[
+ {a1:5,b1:3,c1:31, a2:2,b2:-1,c2:8},
+ {a1:3,b1:2,c1:17, a2:2,b2:-1,c2:2},
+ {a1:3,b1:2,c1:14, a2:1,b2:-1,c2:3},
+ {a1:4,b1:2,c1:18, a2:3,b2:-1,c2:1},
+ {a1:2,b1:3,c1:18, a2:1,b2:-1,c2:4}
+];
+
+/* Ícones */
+var HAND='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v4M14 10V4a2 2 0 0 0-4 0v6M10 10V5a2 2 0 0 0-4 0v9"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>';
+var OKI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>';
+var BADI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><path d="M12 9v5M12 17h.01"/></svg>';
+var TIPI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16h.01M12 8v4"/><circle cx="12" cy="12" r="9"/></svg>';
+var EQI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg>';
+
+document.getElementById("kicker").textContent=KICKER;
+document.getElementById("ttl").textContent=TITULO;
+document.getElementById("sb").textContent=SUBTITULO;
+
+var STORE="revisao_sistemas_natanael_v3";
+function load(){try{return JSON.parse(localStorage.getItem(STORE))||{}}catch(e){return{}}}
+function persist(){try{localStorage.setItem(STORE,JSON.stringify({name:S.name, turmaId:S.turmaId, turma:S.turma, done:S.done, registradoOnline:S.registradoOnline}))}catch(e){}}
+
+var S={};
+function init(){
+  var d=load();
+  S={view:"welcome", name:d.name||"", turmaId:d.turmaId||"", turma:d.turma||"", done:d.done||[], idx:0, step:1, eq:null, mult:null, op:null, comb:null, svar:null, sval:null, oval:null, ph:null};
+  if(S.name && S.turma) S.view="menu";
+  render();
+}
+function isDone(i){return S.done.indexOf(i)>-1;}
+function markDone(i){if(!isDone(i)){S.done.push(i);persist();}}
+
+function rnd(n){return Number.isInteger(n)?n:Math.round(n*100)/100;}
+function term(coef,v,cls,first){
+  if(coef===0)return"";
+  var abs=Math.abs(coef),cs=abs===1?"":abs;
+  var pre=first?(coef<0?"\u2212":""):(" "+(coef<0?"\u2212":"+")+" ");
+  return pre+'<span class="'+cls+'">'+cs+v+'</span>';
+}
+function eqHTML(a,b,c){
+  var p="",f=true;
+  if(a!==0){p+=term(a,"x","x",f);f=false;}
+  if(b!==0){p+=term(b,"y","y",f);f=false;}
+  if(p==="")p="0";
+  return p+' = '+rnd(c);
+}
+function frac(n,d){return '<span class="frac"><span class="fnum">'+n+'</span><span class="fden">'+d+'</span></span>';}
+function fb(k,h){var i=k==="ok"?OKI:k==="bad"?BADI:TIPI;return '<div class="feedback '+k+'">'+i+'<span>'+h+'</span></div>';}
+
+function sys(){return SISTEMAS[S.idx];}
+function TOPv(){var s=sys();return{a:s.a1,b:s.b1,c:s.c1};}
+function BOTv(){var s=sys();return{a:s.a2,b:s.b2,c:s.c2};}
+function baseEq(){return S.eq==="top"?TOPv():BOTv();}
+function modEq(){var b=baseEq();return{a:b.a*S.mult,b:b.b*S.mult,c:b.c*S.mult};}
+function otherEq(){return S.eq==="top"?BOTv():TOPv();}
+function combineAdd(){
+  var mo=modEq(),ot=otherEq();
+  var a=mo.a+ot.a,b=mo.b+ot.b,c=mo.c+ot.c,e=null;
+  if(a===0&&b!==0)e="x";else if(b===0&&a!==0)e="y";
+  return{a:a,b:b,c:c,elim:e};
+}
+
+/* ---------- Drag and Drop ---------- */
+var drag=null,dropHandler=null;
+function arm(sel){document.querySelectorAll(sel).forEach(function(el){el.addEventListener("pointerdown",grab);});}
+function grab(e){
+  e.preventDefault();
+  var el=e.currentTarget,r=el.getBoundingClientRect(),g=el.cloneNode(true);
+  g.classList.add("ghost");g.style.position="fixed";g.style.left=r.left+"px";g.style.top=r.top+"px";
+  g.style.width=r.width+"px";g.style.height=r.height+"px";g.style.margin=0;g.style.pointerEvents="none";
+  g.style.zIndex=9999;g.style.transform="scale(1.06) rotate(-2deg)";
+  document.body.appendChild(g);el.style.opacity=.25;
+  drag={el:el,g:g,ox:e.clientX-r.left,oy:e.clientY-r.top};
+  window.addEventListener("pointermove",move);window.addEventListener("pointerup",release);
+}
+function targetAt(x,y){drag.g.style.visibility="hidden";var u=document.elementFromPoint(x,y);drag.g.style.visibility="visible";return u?u.closest(".dz"):null;}
+function move(e){if(!drag)return;drag.g.style.left=(e.clientX-drag.ox)+"px";drag.g.style.top=(e.clientY-drag.oy)+"px";var t=targetAt(e.clientX,e.clientY);document.querySelectorAll(".dz").forEach(function(d){d.classList.toggle("over",d===t);});}
+function release(e){if(!drag)return;window.removeEventListener("pointermove",move);window.removeEventListener("pointerup",release);var t=targetAt(e.clientX,e.clientY);document.querySelectorAll(".dz").forEach(function(d){d.classList.remove("over");});drag.g.remove();drag.el.style.opacity="";var s=drag.el;drag=null;if(t&&dropHandler)dropHandler(s,t);}
+
+/* ---------- Router ---------- */
+var APP=function(){return document.getElementById("app");};
+function render(){
+  dropHandler=null;
+  if(S.view==="welcome") return vWelcome();
+  if(S.view==="name") return vName();
+  if(S.view==="menu") return vMenu();
+  if(S.view==="cert") return vCert();
+  if(S.view==="exercise") return vExercise();
+}
+
+/* ---------- 1. Tela: Escolher Turma ---------- */
+window.setTurma = function(tId, tLabel){
+  S.turmaId = tId;
+  S.turma = tLabel;
+  S.view = "name";
+  render();
+};
+
+function vWelcome(){
+  APP().innerHTML = 
+    '<div class="welcome-hero pop">' +
+      '<h2>🚀 Olá, Turma!</h2>' +
+      '<p>Prontos para dominar a matemática?</p>' +
+    '</div>' +
+    '<div class="card" style="text-align:center;">' +
+      '<p class="ask">Para começar, selecione sua turma:</p>' +
+      '<button class="btn wide class-btn" onclick="setTurma(\'T1\', \'9º 1\')">Turma 9º 1</button>' +
+      '<button class="btn wide class-btn" onclick="setTurma(\'T2\', \'9º 2\')">Turma 9º 2</button>' +
+    '</div>';
+}
+
+/* ---------- 2. Tela: Escolher Nome ---------- */
+function vName(){
+  var options = "";
+  for(var i=0; i<ALUNOS.length; i++){
+    if(ALUNOS[i].indexOf(S.turmaId) === 0){
+      var nomeLimpo = ALUNOS[i].split("-")[1].trim();
+      options += '<option value="' + ALUNOS[i] + '">' + nomeLimpo + '</option>';
+    }
+  }
+
+  APP().innerHTML = 
+    '<div class="topbar"><button class="link" onclick="S.view=\'welcome\';render()">← trocar turma</button></div>' +
+    '<div class="card pop">' +
+      '<p class="ask">Quem é você?</p>' +
+      '<p class="hint">Turma selecionada: <b>' + S.turma + '</b></p>' +
+      '<select class="field" id="nm">' +
+        '<option value="">-- toque para escolher seu nome --</option>' +
+        options +
+      '</select>' +
+      '<button class="btn go wide" id="start" style="margin-top:20px;">Entrar na Revisão →</button>' +
+    '</div>';
+
+  document.getElementById("start").onclick=function(){
+    var v=document.getElementById("nm").value;
+    if(!v){alert("Por favor, selecione seu nome na lista!");return;}
+    S.name = v.split("-")[1].trim(); 
+    persist();
+    S.view="menu";
+    render();
+  };
+}
+
+/* ---------- 3. Tela: Menu Principal ---------- */
+function vMenu(){
+  var n=S.done.length,all=n>=SISTEMAS.length;
+  var rows="";
+  for(var i=0;i<SISTEMAS.length;i++){
+    var s=SISTEMAS[i],dn=isDone(i);
+    rows+='<div class="mrow"><div class="info">'+
+      '<div class="ex">Exercício '+(i+1)+'</div>'+
+      '<div class="sysmini">'+eqHTML(s.a1,s.b1,s.c1)+' &nbsp;e&nbsp; '+eqHTML(s.a2,s.b2,s.c2)+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:10px">'+
+      '<span class="badge '+(dn?"ok":"todo")+'">'+(dn?"✓ Concluído":"Fazer")+'</span>'+
+      '<button class="btn '+(dn?"":"go")+'" data-open="'+i+'" style="padding:10px 16px">'+(dn?"Refazer":"→")+'</button>'+
+      '</div></div>';
+  }
+  
+  // Recado do Prof
+  var dica = fb("tip", "<b>Recado do Prof:</b> A matemática é como um jogo. Não desista no primeiro erro, tente outra peça! Faça no seu ritmo.");
+  
+  APP().innerHTML=
+    '<div class="topbar"><span class="who">🎓 '+S.name+' ('+S.turma+')</span><button class="link" id="logout">sair</button></div>'+
+    dica + 
+    '<div class="card" style="margin-top:16px;">'+
+      '<p class="ask">Missões da Aula</p>'+
+      '<div class="progress"><div style="width:'+(n/SISTEMAS.length*100)+'%"></div></div>'+
+      '<p class="hint" style="margin-top:0">'+n+' de '+SISTEMAS.length+' concluídos</p>'+
+      rows+
+      (all?'<button class="btn go wide pop" id="cert" style="font-size:18px; padding:20px;">🎉 Gerar Comprovante →</button>'
+          :'<p class="hint" style="margin-top:20px">Conclua todos os exercícios para liberar seu comprovante.</p>')+
+    '</div>';
+    
+  document.querySelectorAll("[data-open]").forEach(function(b){b.onclick=function(){S.idx=+b.dataset.open;resetEx();S.view="exercise";render();};});
+  document.getElementById("logout").onclick=function(){if(confirm("Deseja sair? Seu progresso continuará salvo no seu celular."))(function(){S.name="";S.view="welcome";render();})();};
+  var c=document.getElementById("cert");if(c)c.onclick=function(){S.view="cert";render();};
+}
+
+/* ---------- 4. Tela: Comprovante e Envio ---------- */
+function codeFor(name){var s=0;for(var i=0;i<name.length;i++)s=(s*31+name.charCodeAt(i))%100000;return "RS"+(1000+s%9000);}
+
+function vCert(){
+  var when=new Date().toLocaleDateString("pt-BR")+" às "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+  var cd=codeFor(S.name);
+  
+  // Prepara Mensagem do WhatsApp
+  var msg=TITULO+" ("+PROFESSOR+")\n\nAluno(a): "+S.name+"\nTurma: "+S.turma+"\nConcluiu todos os "+SISTEMAS.length+" exercícios!\nData: "+when+"\nCódigo: "+cd;
+  var waBtn=WHATS?'<a class="btn wa wide pop" href="https://wa.me/'+WHATS+'?text='+encodeURIComponent(msg)+'" target="_blank" rel="noopener" style="font-size:18px; padding:18px; display:block; margin-top:10px;">Enviar no WhatsApp do Professor</a>':"";
+  
+  // Registro na planilha (robusto): tenta fetch e tambem pixel/imagem como reforco
+  if(LINK_PLANILHA && !S.registradoOnline){
+    var nomeCompleto = S.turma + " - " + S.name;
+    var urlEnvio = LINK_PLANILHA + "?nome=" + encodeURIComponent(nomeCompleto) + "&codigo=" + encodeURIComponent(cd) + "&t=" + Date.now();
+
+    // 1) Tenta enviar por fetch (mais confiavel quando ha rede)
+    try{
+      fetch(urlEnvio, {method:"GET", mode:"no-cors", cache:"no-store", keepalive:true});
+    }catch(e){}
+
+    // 2) Reforco com imagem invisivel (funciona mesmo se o fetch falhar)
+    try{
+      var imgTracking = new Image();
+      imgTracking.src = urlEnvio;
+    }catch(e){}
+
+    S.registradoOnline = true;
+    persist(); // salva que ja registrou, pra nao duplicar
+  }
+
+  APP().innerHTML=
+    '<div class="topbar"><span class="who">🎓 '+S.name+'</span><button class="link" id="back">← voltar</button></div>'+
+    '<div class="card cert">'+
+      '<div class="seal">'+OKI+'</div>'+
+      '<p class="ask" style="color:var(--green); font-size:24px;">Missão Cumprida!</p>'+
+      '<div class="name">'+S.name+'</div>'+
+      '<div class="meta">concluiu com sucesso os <b>'+SISTEMAS.length+' exercícios</b><br>'+TITULO+'<br>'+when+'</div>'+
+      '<div class="codebox">'+cd+'</div>'+
+      
+      ''+
+      '<div style="margin: 20px 0; padding: 20px; background: #fff; border: 3px dashed var(--blue); border-radius: 16px;">'+
+         '<p style="margin:0 0 10px; font-weight:800; font-size:18px; color:var(--blue);">📸 Desafio Extra do Prof!</p>'+
+         '<p style="font-size:14px; color:var(--muted); margin-bottom:16px; line-height:1.4;">Tire uma selfie comemorando para eu ver você estudando! Mande junto no WhatsApp.</p>'+
+         '<label class="btn go" style="display:inline-block; cursor:pointer; font-size:16px;">'+
+            '📷 Tirar Selfie Agora'+
+            '<input type="file" accept="image/*" capture="user" style="display:none;" onchange="document.getElementById(\'selfie-msg\').style.display=\'block\'">'+
+         '</label>'+
+         '<p id="selfie-msg" style="display:none; color:var(--green); font-weight:800; margin-top:14px; background:var(--green-soft); padding:10px; border-radius:10px;">Selfie pronta no celular! Não esqueça de anexar ao enviar a mensagem.</p>'+
+      '</div>'+
+      
+      waBtn+
+      '<p class="hint" style="margin-top:20px">O professor já foi notificado pelo sistema! Envie a mensagem acima no WhatsApp para garantir seus pontos.</p>'+
+    '</div>';
+    
+  document.getElementById("back").onclick=function(){S.view="menu";render();};
+}
+
+/* ---------- 5. Tela: Exercício (Solver) ---------- */
+function resetEx(){S.step=1;S.eq=null;S.mult=null;S.op=null;S.comb=null;S.svar=null;S.sval=null;S.oval=null;S.ph=null;}
+var STEP_NAMES=["Escolher","Multiplicar","Somar","Resolver","Substituir"];
+function vExercise(){
+  var s=sys();
+  var steps="";
+  for(var i=0;i<STEP_NAMES.length;i++){
+    var nn=i+1,cls=nn<S.step?"step ok":(nn===S.step?"step on":"step");
+    steps+='<div class="'+cls+'"><span class="bub">'+(nn<S.step?"✓":nn)+'</span>'+STEP_NAMES[i]+'</div>';
+    if(i<STEP_NAMES.length-1)steps+='<span class="sepd"></span>';
+  }
+  APP().innerHTML=
+    '<div class="topbar"><span class="who">Exercício '+(S.idx+1)+' de '+SISTEMAS.length+'</span><button class="link" id="tomenu">← menu</button></div>'+
+    '<div class="card">'+
+      '<div class="system"><div class="brace"></div><div class="eqs"><div class="eq">'+eqHTML(s.a1,s.b1,s.c1)+'</div><div class="eq">'+eqHTML(s.a2,s.b2,s.c2)+'</div></div></div>'+
+      '<div class="steps">'+steps+'</div>'+
+      '<div id="stepbox"></div>'+
+    '</div>';
+  document.getElementById("tomenu").onclick=function(){S.view="menu";render();};
+  ({1:r1,2:r2,3:r3,4:r4,5:r5,6:r6})[S.step]();
+}
+var SB=function(){return document.getElementById("stepbox");};
+
+function r1(){
+  var t=TOPv(),b=BOTv();
+  SB().innerHTML=
+    '<p class="ask">1. Qual equação vamos transformar?</p>'+
+    '<p class="hint">'+HAND+' arraste uma equação para a mesa</p>'+
+    '<div class="row" style="margin-bottom:20px"><div class="tile" data-eq="top">'+eqHTML(t.a,t.b,t.c)+'</div><div class="tile" data-eq="bottom">'+eqHTML(b.a,b.b,b.c)+'</div></div>'+
+    '<div class="dz big" data-accept="eq" id="eqslot">Solte aqui a equação escolhida</div>'+
+    '<div id="x1"></div>';
+  arm('[data-eq]');
+  dropHandler=function(src,tg){
+    if(!src.dataset.eq||tg.id!=="eqslot")return;
+    S.eq=src.dataset.eq;S.mult=null;
+    tg.className="dz big done2";tg.innerHTML=eqHTML(baseEq().a,baseEq().b,baseEq().c);tg.classList.add("pop");
+    document.getElementById("x1").innerHTML=
+      (S.eq==="bottom"?fb("ok","Boa! A de baixo tem −y, o que facilita muito a nossa vida para cancelar."):fb("tip","<b>Dica do Prof:</b> Pode tentar, mas a equação <b>de baixo</b> tem um sinal negativo que facilita o cancelamento! Tente puxar a de baixo."))+
+      '<div class="controls"><span></span><button class="btn go" id="n1">Avançar →</button></div>';
+    document.getElementById("n1").onclick=function(){S.step=2;vExercise();};
+  };
+}
+
+function r2(){
+  var b=baseEq();
+  SB().innerHTML=
+    '<p class="ask">2. Por qual número multiplicar?</p>'+
+    '<p class="hint">'+HAND+' arraste a ficha para cima da equação</p>'+
+    '<div class="dz big done2" data-accept="num" id="eqdrop">'+eqHTML(b.a,b.b,b.c)+'</div>'+
+    '<div class="row" style="margin-top:20px">'+[1,2,3,4,5,6].map(function(m){return '<div class="chip" data-m="'+m+'">×'+m+'</div>';}).join("")+'</div>'+
+    '<div id="x2"></div>'+
+    '<div class="controls"><button class="link" id="b2">← trocar equação</button><span id="next2"></span></div>';
+  arm('[data-m]');
+  document.getElementById("b2").onclick=function(){S.step=1;vExercise();};
+  dropHandler=function(src,tg){
+    if(src.dataset.m===undefined||tg.id!=="eqdrop")return;
+    S.mult=+src.dataset.m;var m=modEq();
+    tg.innerHTML=eqHTML(m.a,m.b,m.c);tg.classList.remove("pop");void tg.offsetWidth;tg.classList.add("pop");
+    document.getElementById("x2").innerHTML=fb("ok","Excelente! Multiplicamos <b>cada número</b> da equação por "+S.mult+". Lembre-se, tudo tem que multiplicar!");
+    document.getElementById("next2").innerHTML='<button class="btn go" id="n2">Avançar →</button>';
+    document.getElementById("n2").onclick=function(){S.step=3;vExercise();};
+  };
+}
+
+function r3(){
+  var mo=modEq(),ot=otherEq();
+  SB().innerHTML=
+    '<p class="ask">3. Some as duas equações</p>'+
+    '<p class="hint">'+HAND+' arraste o sinal de "+" para o espaço entre elas</p>'+
+    '<div class="bigeq">'+eqHTML(mo.a,mo.b,mo.c)+'</div>'+
+    '<div class="dz big" data-accept="op" id="opdrop" style="max-width:300px;margin:12px auto">solte o + aqui</div>'+
+    '<div class="bigeq">'+eqHTML(ot.a,ot.b,ot.c)+'</div>'+
+    '<hr><div id="res3" class="bigeq" style="color:var(--muted)">= ?</div>'+
+    '<div class="row" style="margin-top:16px"><div class="chip op" data-op="add">+ Somar</div></div>'+
+    '<div id="x3"></div>'+
+    '<div class="controls"><button class="link" id="b3">← mudar número</button><span id="next3"></span></div>';
+  arm('[data-op]');
+  document.getElementById("b3").onclick=function(){S.step=2;vExercise();};
+  dropHandler=function(src,tg){
+    if(!src.dataset.op||tg.id!=="opdrop")return;
+    S.op="add";tg.className="dz big done2";tg.innerHTML="+ Somar";
+    var c=combineAdd();S.comb=c;var disp=document.getElementById("res3");
+    if(c.elim){
+      var resTxt=(c.a!==0?(c.a===1?"":c.a)+'<span class="x">x</span>':(c.b===1?"":c.b)+'<span class="y">y</span>')+' = '+rnd(c.c);
+      disp.innerHTML='<span class="struck">'+c.elim+'</span> some → <span class="resbox">'+resTxt+'</span>';
+      document.getElementById("x3").innerHTML=fb("ok","ZAP! Os termos opostos do <b>"+c.elim+"</b> se cancelaram. Ficou fácil agora!");
+      document.getElementById("next3").innerHTML='<button class="btn go" id="n3">Resolver →</button>';
+      document.getElementById("n3").onclick=function(){
+        if(c.elim==="y"){S.svar="x";S.sval=c.c/c.a;}else{S.svar="y";S.sval=c.c/c.b;}
+        S.step=4;S.ph=null;vExercise();
+      };
+    }else{
+      disp.innerHTML='<span class="resbox" style="font-size:22px">'+eqHTML(c.a,c.b,c.c)+'</span>';
+      var tip=S.eq==="top"
+        ?"Nenhuma letra zerou. Com a equação <b>de cima</b> não dá com número inteiro. Volte e use a de baixo!"
+        :"<b>Dica do Prof:</b> Quase lá! Para a letra sumir, o número da frente embaixo precisa ser igual ao de cima, mas com sinal oposto. Volte e pegue outra ficha!";
+      document.getElementById("x3").innerHTML=fb("bad",tip)+'<div class="controls"><span></span><button class="link" id="rt3">tentar de novo</button></div>';
+      document.getElementById("rt3").onclick=function(){S.op=null;vExercise();};
+    }
+  };
+}
+
+function r4(){
+  var c=S.comb,coef=c.elim==="y"?c.a:c.b,num=c.c,vv=S.svar;
+  if(!S.ph)S.ph="drag";
+  var head='<p class="ask">4. Isole o <span class="'+vv+'">'+vv+'</span></p>';
+  var topLine='<div class="bigeq">'+(coef===1?"":coef)+'<span class="'+vv+'">'+vv+'</span> = '+rnd(num)+'</div>';
+  if(S.ph==="drag"){
+    SB().innerHTML=head+'<p class="hint">'+HAND+' arraste o <b>'+coef+'</b> para formar a fração</p>'+topLine+
+      '<div class="bigeq" style="margin-top:12px"><span class="'+vv+'">'+vv+'</span> = '+frac(rnd(num),'<span class="dz inl" data-accept="den4" id="den4">?</span>')+'</div>'+
+      '<div class="row" style="margin-top:24px"><div class="chip" data-tok="den4">'+coef+'</div></div>'+
+      '<div class="controls"><button class="link" id="b4">← voltar</button><span></span></div>';
+    arm('[data-tok]');document.getElementById("b4").onclick=function(){S.step=3;vExercise();};
+    dropHandler=function(src,tg){if(src.dataset.tok!=="den4"||tg.id!=="den4")return;S.ph="calc";vExercise();};
+  }else if(S.ph==="calc"){
+    SB().innerHTML=head+topLine+
+      '<div class="bigeq" style="margin-top:12px"><span class="'+vv+'">'+vv+'</span> = '+frac(rnd(num),coef)+'</div>'+
+      '<div class="row" style="margin-top:20px"><button class="btn calc" id="c4">'+EQI+' Dividir e Calcular</button></div>'+
+      '<div class="controls"><button class="link" id="b4">← voltar</button><span></span></div>';
+    document.getElementById("b4").onclick=function(){S.ph="drag";vExercise();};
+    document.getElementById("c4").onclick=function(){S.sval=num/coef;S.ph="done";vExercise();};
+  }else{
+    SB().innerHTML=head+'<div class="bigeq"><span class="resbox '+vv+'">'+vv+' = '+frac(rnd(num),coef)+' = '+rnd(S.sval)+'</span></div>'+
+      fb("ok","Metade da missão concluída! Achamos o <b>"+vv+"</b>. Vamos para a próxima letra.")+
+      '<div class="controls"><button class="link" id="b4">← refazer</button><button class="btn go" id="n4">Avançar →</button></div>';
+    document.getElementById("b4").onclick=function(){S.ph="drag";vExercise();};
+    document.getElementById("n4").onclick=function(){S.step=5;S.ph=null;vExercise();};
+  }
+}
+
+function r5(){
+  var t=TOPv(),xv=S.sval,prod=t.a*xv,diff=t.c-prod,cy=t.b,yv=diff/cy;
+  S.oval=yv;
+  if(!S.ph)S.ph="place";
+  var head='<p class="ask">5. Substitua o <span class="x">x = '+rnd(xv)+'</span> na 1ª Equação</p>';
+  var back=function(to){var b=document.getElementById("b5");if(b)b.onclick=function(){S.ph=to;vExercise();};};
+  if(S.ph==="place"){
+    SB().innerHTML=head+'<p class="hint">'+HAND+' arraste o valor <span class="x">'+rnd(xv)+'</span> para dentro do parêntese</p>'+
+      '<div class="bigeq">'+t.a+'·(<span class="dz inl" data-accept="val" id="paren">x</span>) + <span class="y">'+(t.b===1?"":t.b)+'y</span> = '+t.c+'</div>'+
+      '<div class="row" style="margin-top:24px"><div class="chip" data-tok="val" style="background:var(--blue-soft);border-color:var(--blue);color:var(--blue)">'+rnd(xv)+'</div></div>'+
+      '<div class="controls"><span></span><button class="link" id="b5">← voltar passo anterior</button></div>';
+    arm('[data-tok]');document.getElementById("b5").onclick=function(){S.step=4;S.ph="done";vExercise();};
+    dropHandler=function(src,tg){if(src.dataset.tok!=="val"||tg.id!=="paren")return;S.ph="mult";vExercise();};
+  }else if(S.ph==="mult"){
+    SB().innerHTML=head+'<p class="hint">Resolva a multiplicação: '+t.a+'·('+rnd(xv)+')</p>'+
+      '<div class="bigeq">'+t.a+'·(<span class="x">'+rnd(xv)+'</span>) + <span class="y">'+(t.b===1?"":t.b)+'y</span> = '+t.c+'</div>'+
+      '<div class="row" style="margin-top:20px"><button class="btn calc" id="c5">'+EQI+' Multiplicar</button></div>'+
+      '<div class="controls"><button class="link" id="b5">← voltar</button><span></span></div>';
+    document.getElementById("c5").onclick=function(){S.ph="move";vExercise();};back("place");
+  }else if(S.ph==="move"){
+    SB().innerHTML=head+'<p class="hint">'+HAND+' arraste o <b>'+rnd(prod)+'</b> para o outro lado da ponte do "=" (muda o sinal!)</p>'+
+      '<div class="bigeq"><span class="chip" data-tok="t25" style="font-size:24px;height:48px;min-width:48px">'+rnd(prod)+'</span> + <span class="y">'+(t.b===1?"":t.b)+'y</span> = '+t.c+' <span class="dz inl" data-accept="t25" id="rside" style="min-width:100px;font-size:14px;color:var(--muted)">outro lado</span></div>'+
+      '<div class="controls"><button class="link" id="b5">← voltar</button><span></span></div>';
+    arm('[data-tok]');document.getElementById("b5").onclick=function(){S.ph="mult";vExercise();};
+    dropHandler=function(src,tg){if(src.dataset.tok!=="t25"||tg.id!=="rside")return;S.ph="diff";vExercise();};
+  }else if(S.ph==="diff"){
+    SB().innerHTML=head+'<p class="hint">Ele pulou e trocou o sinal. Agora subtraia os números!</p>'+
+      '<div class="bigeq"><span class="y">'+(t.b===1?"":t.b)+'y</span> = '+t.c+' − '+rnd(prod)+'</div>'+
+      '<div class="row" style="margin-top:20px"><button class="btn calc" id="c5">'+EQI+' Subtrair</button></div>'+
+      '<div class="controls"><button class="link" id="b5">← voltar</button><span></span></div>';
+    document.getElementById("c5").onclick=function(){S.ph="divide";vExercise();};back("move");
+  }else if(S.ph==="divide"){
+    SB().innerHTML=head+'<p class="hint">'+HAND+' arraste o <b>'+cy+'</b> para baixo para dividir</p>'+
+      '<div class="bigeq">'+(cy===1?"":cy)+'<span class="y">y</span> = '+rnd(diff)+'</div>'+
+      '<div class="bigeq" style="margin-top:12px"><span class="y">y</span> = '+frac(rnd(diff),'<span class="dz inl" data-accept="den5" id="den5">?</span>')+'</div>'+
+      '<div class="row" style="margin-top:24px"><div class="chip" data-tok="den5">'+cy+'</div></div>'+
+      '<div class="controls"><button class="link" id="b5">← voltar</button><span></span></div>';
+    arm('[data-tok]');document.getElementById("b5").onclick=function(){S.ph="diff";vExercise();};
+    dropHandler=function(src,tg){if(src.dataset.tok!=="den5"||tg.id!=="den5")return;S.ph="caldiv";vExercise();};
+  }else if(S.ph==="caldiv"){
+    SB().innerHTML=head+'<div class="bigeq"><span class="y">y</span> = '+frac(rnd(diff),cy)+'</div>'+
+      '<div class="row" style="margin-top:20px"><button class="btn calc" id="c5">'+EQI+' Calcular final</button></div>'+
+      '<div class="controls"><button class="link" id="b5">← voltar</button><span></span></div>';
+    document.getElementById("c5").onclick=function(){S.ph="done";vExercise();};back("divide");
+  }else{
+    SB().innerHTML=head+'<div class="bigeq"><span class="resbox y">y = '+frac(rnd(diff),cy)+' = '+rnd(yv)+'</span></div>'+
+      fb("ok","Acertou na mosca! Descobrimos o valor final.")+
+      '<div class="controls"><button class="link" id="b5">← refazer</button><button class="btn go pop" id="n5">Finalizar Exercício →</button></div>';
+    document.getElementById("b5").onclick=function(){S.ph="place";vExercise();};
+    document.getElementById("n5").onclick=function(){S.step=6;vExercise();};
+  }
+}
+
+function r6(){
+  var t=TOPv(),b=BOTv();
+  var xv=S.svar==="x"?S.sval:S.oval, yv=S.svar==="y"?S.sval:S.oval;
+  var c1=t.a*xv+t.b*yv, c2=b.a*xv+b.b*yv;
+  markDone(S.idx);
+  var allDone=S.done.length>=SISTEMAS.length;
+  SB().innerHTML='<div class="final">'+
+    '<p class="ask" style="color:var(--green); font-size:24px;">'+OKI+' Resolvido!</p>'+
+    '<div class="solrow"><div class="solcard pop"><div class="lbl x">x</div><div class="val x">'+rnd(xv)+'</div></div>'+
+    '<div class="solcard pop"><div class="lbl y">y</div><div class="val y">'+rnd(yv)+'</div></div></div>'+
+    '<div class="check" style="margin-bottom:20px;"><b>Tirando a prova real:</b><br>'+
+      eqLeft(t.a,t.b,xv,yv)+' = <b>'+rnd(c1)+'</b> ✓<br>'+
+      eqLeft(b.a,b.b,xv,yv)+' = <b>'+rnd(c2)+'</b> ✓</div>'+
+    '<div class="controls" style="flex-direction:column; gap:12px;">'+
+      (allDone?'<button class="btn go wide pop" id="cert2" style="font-size:18px;">🎉 Pegar Comprovante →</button>':'')+
+      '<button class="link" id="menu" style="font-size:16px;">'+(allDone?"Voltar ao menu principal":"← Voltar para a lista e fazer o próximo")+'</button>'+
+    '</div></div>';
+  document.getElementById("menu").onclick=function(){S.view="menu";render();};
+  var c2b=document.getElementById("cert2");if(c2b)c2b.onclick=function(){S.view="cert";render();};
+}
+function eqLeft(a,b,x,y){
+  var p=a+"·("+rnd(x)+")";
+  p+=(b<0?" − ":" + ")+Math.abs(b)+"·("+rnd(y)+")";
+  return p;
+}
+
+init();
+</script>
+</body>
+</html>
